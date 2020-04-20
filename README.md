@@ -1,2 +1,2 @@
 # nem-language
-Interpreter for my programming language called Nem.
+Interpreter for Nem programming language.
