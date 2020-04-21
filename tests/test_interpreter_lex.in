@@ -1,45 +1,7 @@
-# Gets Ignored
-# '#...\n' - Comment
-
-# Gets tokenized
-# ',' - <list-element>
-# '"..."' - <text>
-# r'[0-9]*[.]?[0-9]+' - <number>
-# r'[a-z_][a-z_0-9]*' - <symbol>
-# 'null' - <null>
-# ';' - <end>
-# 'input' - <keyword>
-# 'output' - <keyword>
-# 'error' - <keyword>
-# 'while' - <keyword>
-# 'if' - <keyword>
-# 'otherwise' - <keyword>
-# 'import' - <keyword>
-# 'open' - <keyword>
-# 'convert' - <keyword>
-# 'number' - <keyword>
-# 'text' - <keyword>
-# 'list' - <keyword>
-# 'break' - <keyword>
-# 'continue' - <keyword>
-# 'function' - <keyword>
-# 'not' - <operator>
-# 'is' - <operator>
-# 'and' - <operator>
-# 'or' - <operator>
-# r'[=+-*/^%<>]' - <operator>
-# '(' - <left-bracket>
-# ')' - <right-bracket>
-# '[' - <left-square>
-# ']' - <right-square>
-
-# term - factor (('+'|'-'|'%') factor)
-# factor - power ((('*'|'/') power)|<symbol>)
-# power - <number> ^ <symbol>
-#
-# () - most important
+# Code made for testing purposes #
 
 # '=' operator
+VAriable_name = .2;
 variable_name = 10.2; # sets variable_name to 10.2 and returns 10.2
 variable_name_2 = "a string"; # sets variable_name_2 to "a string" and returns "a string"
 
@@ -260,16 +222,16 @@ a_list[0]; # returns 1
 
 # 'break' and 'continue' keywords
 # Same as in Python
-i = 0
+i = 0;
 while (i < 100)
 (
     i = i + 1;
     if (i > 20) (
-        break
+        break;
     )
     else (
         output i;
-     );
+    );
 );
 while 1
 (
@@ -278,33 +240,26 @@ while 1
 
 
 # 'not' operator
-# Same as in Python
 if (not 1) (a=2;);
 if (not "") (b=2;);
 
 
 # 'is' operator
-# Tests for equality
 if (1 is 2) (a=2;);
 if (1 is 1) (a=3;);
 
 
 # 'and' operator
-# If both left and right return values are not 0, "" or null
 if (1 is 1 and 2 is 2) (a=2;);
 
 
 # 'or' operator
-# If either of left and right return values are not 0, "" or null
 if (1 is 2 or 1 is 1) (a=2;);
 
 
 # '>' operator
-# Same as in Python
 if (not (1 > 2)) (a = 2;);
 
 
 # '<' operator
-# Same as in Python
 if (1 < 2) (a = 2;)
-
