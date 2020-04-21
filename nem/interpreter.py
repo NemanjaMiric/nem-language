@@ -6,6 +6,7 @@ Holds class Interpreter and used for debugging the class Interpreter.
 
 
 from nem.nemtoken import Token
+from nem.exceptions import LexerException, ParserException
 import re
 
 
@@ -34,9 +35,11 @@ class Interpreter:
         ',' - <list-element>
         '"..."' - <text>
         'input' - <stream>; 'output' - <stream>; 'error' - <stream>
-        r'[=+-*/^]' - <symbol>
+        r'[=+-*/^%]' - <operator>
         r'[0-9]*[.]?[0-9]+' - <number>
-        r'[a-z_][a-z_0-9]*' - <variable-any>
+        r'[a-z_][a-z_0-9]*' - <symbol>
+        '(' - <left-bracket>
+        ')' - <right-bracket>
 
         Gets ignored:
         '#...\n' - Comment
@@ -58,8 +61,14 @@ class Interpreter:
             elif current_token == ",":
                 tokens.append(Token("list-element", current_token))
 
-            elif current_token in "=+-*/^":
-                tokens.append(Token("operation", current_token))
+            elif current_token == "(":
+                tokens.append(Token("left-bracket", current_token))
+
+            elif current_token == ")":
+                tokens.append(Token("right-bracket", current_token))
+
+            elif current_token in "=+-*/^%":
+                tokens.append(Token("operator", current_token))
 
             elif current_token == "#":
                 while self.code[current_index] != "\n":
@@ -74,8 +83,8 @@ class Interpreter:
                         current_index += 1
                         character += 1
                 except IndexError:
-                    print("Lexing Error (Line {}, Character: {}): Text doesn't have an end".format(line, character))
-                    exit(-1)
+                    raise LexerException("Lexing Error (Line {}, Character: {}): Text doesn't have an end"
+                                         .format(line, character))
                 else:
                     tokens.append(Token("text", self.code[start_index:current_index]))
 
@@ -89,7 +98,7 @@ class Interpreter:
                 if self.code[start_index:current_index] in ("input", "output", "error"):
                     tokens.append(Token("stream", self.code[start_index:current_index]))
                 else:
-                    tokens.append(Token("variable-any", self.code[start_index:current_index]))
+                    tokens.append(Token("symbol", self.code[start_index:current_index]))
                 continue
 
             elif re.match("[0-9.]", current_token):
@@ -101,8 +110,8 @@ class Interpreter:
                     current_index += 1
                     character += 1
                 if self.code[start_index:current_index] == ".":
-                    print("Lexing Error (Line {}, Character: {}): Unrecognized token".format(line, character))
-                    exit(-1)
+                    raise LexerException("Lexing Error (Line {}, Character: {}): Unrecognized token"
+                                         .format(line, character))
                 else:
                     tokens.append(Token("number", self.code[start_index:current_index]))
                 continue
@@ -111,13 +120,21 @@ class Interpreter:
                 pass
 
             else:
-                print("Lexing Error (Line {}, Character: {}): Unrecognized token".format(line, character))
-                exit(-1)
+                raise LexerException("Lexing Error (Line {}, Character: {}): Unrecognized token"
+                                     .format(line, character))
 
             current_index += 1
             character += 1
 
         return tokens
+
+    def parse(self):
+        """Parse the tokens.
+
+        Parses the tokens that get returned from the lexer and builds an AST out of them.
+
+        """
+        pass
 
 
 def main():
@@ -132,5 +149,5 @@ def main():
 
 
 if __name__ == "__main__":
-    # Only gets activated when the file gets ran directly.
+    # Only activates when the file gets ran directly.
     main()

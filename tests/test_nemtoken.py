@@ -24,5 +24,5 @@ class TokenTestCase(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    # Only gets activated when the file gets ran directly.
+    # Only activates when the file gets ran directly.
     unittest.main()

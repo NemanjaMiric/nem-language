@@ -5,21 +5,34 @@
 # ',' - <list-element>
 # '"..."' - <text>
 # r'[0-9]*[.]?[0-9]+' - <number>
-# r'[a-z_][a-z_0-9]*' - <variable-any>
+# r'[a-z_][a-z_0-9]*' - <symbol>
 # 'input' - <stream>, 'output' - <stream>, 'error' - <stream>
-# r'[=+-*/^]' - <symbol>
+# r'[=+-*/^%]' - <operation>
+# '(' - <left-bracket>
+# ')' - <right-bracket>
 
 # TODO
-# '<variable-any>=<any>' - Tries to convert <variable-any> to have the same type as <any> and sets <variable-any> to be equal to <any>
+# term - factor (('+'|'-'|'%') factor)
+# factor - power ((('*'|'/') power)|<symbol>)
+# power - <number> ^ <symbol>
+#
+# () - most important
+#
+# '<symbol>=<any>' - Tries to convert <symbol> to have the same type as <any> and sets <symbol> to be equal to <any>
 # '<number/text/list>+<any>' - Tries to convert <any> to have the same type as <number/text/list> and add/concatenate it to <number/text/list>
-# '<number><variable-any>' - Tries to convert <variable-any> to <number> and add it to <number>
+# '<number><symbol>' - Tries to convert <symbol> to <number> and add it to <number>
 # '<number/text/list>-<any>' - Tries to convert <any> to have the same type as <number/text/list> and subtract/remove it from <number/text/list>
-# '<number/list>*<any>' - Tries to convert <any> to have the same type as <number/text/list> and multiply it with <number/text/list>
-# '<number/list>/<any>' - Tries to convert <any> to have the same type as <number/text/list> and divide it with <number/text/list>
-# '<number>^<any>' - Tries to convert <any> to number and raise <number/text/list> to the power of <any>
+# '<number/list>*<any>' - Tries to convert <any> to have the same type as <number/list> and multiply it with <number/text/list>
+# '<number/list>/<any>' - Tries to convert <any> to have the same type as <number/list> and divide it with <number/text/list>
+# '<number>^<any>' - Tries to convert <any> to number and raise <number> to the power of <any>
+# '<number>%<any>' - Tries to convert <any> to number and get the remainder of <number> when divided by <any>
 # 'output <any>' - Tries to convert <any> to <text> and pushes <any> to output stream
 # 'error <any>' - Tries to convert <any> to <text> and pushes <any> to error stream
-# 'input <variable-any>' - Pulls from input stream and tries to convert <variable-any> to <text-variable> and sets it equal to input
+# 'input <symbol>' - Pulls from input stream and tries to convert <symbol> to <text-variable> and sets it equal to input
+
+# TODO #2
+# Parser
+# Evaluator
 
 # Code made for testing purposes #
 my_very_cool_variable123 = 77
@@ -38,7 +51,9 @@ output "some text1 2   3"
 555 + .2 * 1^3
 66^77
 gg = 1-2+3-4+5-6
-d = 5x^2 + x^1 -3x^0#Cool stuff
+d = 5x^2 + x^1 %3x^0#Cool stuff
 output d
+
+(2+2)*2^2
 
 list = 1, 2,3 ,4 ,6 ,7 #neat
