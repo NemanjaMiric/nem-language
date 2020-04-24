@@ -1,0 +1,15 @@
+# Fibonacci numbers generator
+
+function fib(first, second, stop) (
+    while (first < stop) (
+        output first
+
+        temporary = first
+        first = second
+        second = temporary + second
+    )
+
+    return 0
+)
+
+fib(1, 1, 1000)

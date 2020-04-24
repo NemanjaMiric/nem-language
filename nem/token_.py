@@ -56,6 +56,7 @@ class Token:
     GREATER_EQUAL = "GREATER_EQUAL"
     IS = "IS"
     MODULO = "MODULO"
+    EOF = "EOF"
 
     def __init__(self, type_, value, line):
         """Initialize class Token.
@@ -73,7 +74,7 @@ class Token:
 
     def __str__(self):
         """Convert Token class to string."""
-        return "Token({}):{}={}".format(self.line, self.type, self.value)
+        return "{}={}".format(self.type, self.value)
 
     def __eq__(self, other):
         """Check equality of Token class."""

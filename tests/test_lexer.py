@@ -20,17 +20,15 @@ class LexerTestCase(unittest.TestCase):
     """
 
     def test_lex(self):
-        """Test the lex method from the Lexer class.
+        """Test the lex method.
 
         Tests the lexer.
 
         """
-        self.maxDiff = None
-
-        with open("test_lexer.in") as _input:
+        with open("test_cases/test_lexer.in") as _input:
             _input = _input.read()
 
-        with open("test_lexer.out") as output:
+        with open("test_cases/test_lexer.out") as output:
             output = eval(output.read())
 
         self.assertEqual(list(Lexer(_input).lex()), output)
@@ -42,7 +40,7 @@ class LexerTestCase(unittest.TestCase):
             list(Lexer("\n..\n").lex())
 
         with self.assertRaises(LexerException):
-            list(Lexer("\n.\n").lex())
+            list(Lexer(".\n").lex())
 
         with self.assertRaises(LexerException):
             list(Lexer("\n'\n").lex())

@@ -45,6 +45,7 @@ Tokens:
     GREATER_EQUAL = '>='
     IS = 'is'
     MODULO = '%'
+    EOF = End of file
 
 Everything in between '#' character and newline character gets ignored.
 
@@ -311,9 +312,13 @@ class Lexer:
         current_token = self._next_token()
 
         while current_token is not None:
+            # If the current token is a comment, skips the yield
             if current_token:
                 yield current_token
             current_token = self._next_token()
+
+        # Appends the EOF token
+        yield Token(Token.EOF, None, self.line)
 
     def lex(self):
         """Lex the code.
@@ -321,48 +326,49 @@ class Lexer:
         Lexer for Nem code.
 
         Tokens:
-        NUMBER = re'[0-9]*\.?[0-9]+'
-        TEXT = re'".*"' ::: DOTALL flag
-        SYMBOL = re'[a-zA-Z_][a-zA-Z_0-9]*'
-        NULL = 'null'
-        LIST_ELEMENT = ','
-        CARET = '^'
-        ASTERISK = '*'
-        SLASH = '/'
-        PLUS = '+'
-        MINUS = '-'
-        EQUAL = '='
-        INPUT = 'input'
-        OUTPUT = 'output'
-        ERROR = 'error'
-        WHILE = 'while'
-        LEFT_BRACKET = '('
-        RIGHT_BRACKET = ')'
-        IF = 'if'
-        OTHERWISE = 'otherwise'
-        FUNCTION = 'function'
-        IMPORT = 'import'
-        FILE = 'file'
-        READ = 'read'
-        WRITE = 'write'
-        CONVERT = 'convert'
-        NUMBER_DEFINITION = 'number'
-        TEXT_DEFINITION = 'text'
-        LIST_DEFINITION = 'list'
-        LEFT_SQUARE = '['
-        RIGHT_SQUARE = ']'
-        BREAK = 'break'
-        CONTINUE = 'continue'
-        RETURN = 'return'
-        NOT = 'not'
-        OR = 'or'
-        AND = 'and'
-        LESS = '<'
-        LESS_EQUAL = '<='
-        GREATER = '>'
-        GREATER_EQUAL = '>='
-        IS = 'is'
-        MODULO = '%'
+            NUMBER = re'[0-9]*\.?[0-9]+'
+            TEXT = re'".*"' ::: DOTALL flag
+            SYMBOL = re'[a-zA-Z_][a-zA-Z_0-9]*'
+            NULL = 'null'
+            LIST_ELEMENT = ','
+            CARET = '^'
+            ASTERISK = '*'
+            SLASH = '/'
+            PLUS = '+'
+            MINUS = '-'
+            EQUAL = '='
+            INPUT = 'input'
+            OUTPUT = 'output'
+            ERROR = 'error'
+            WHILE = 'while'
+            LEFT_BRACKET = '('
+            RIGHT_BRACKET = ')'
+            IF = 'if'
+            OTHERWISE = 'otherwise'
+            FUNCTION = 'function'
+            IMPORT = 'import'
+            FILE = 'file'
+            READ = 'read'
+            WRITE = 'write'
+            CONVERT = 'convert'
+            NUMBER_DEFINITION = 'number'
+            TEXT_DEFINITION = 'text'
+            LIST_DEFINITION = 'list'
+            LEFT_SQUARE = '['
+            RIGHT_SQUARE = ']'
+            BREAK = 'break'
+            CONTINUE = 'continue'
+            RETURN = 'return'
+            NOT = 'not'
+            OR = 'or'
+            AND = 'and'
+            LESS = '<'
+            LESS_EQUAL = '<='
+            GREATER = '>'
+            GREATER_EQUAL = '>='
+            IS = 'is'
+            MODULO = '%'
+            EOF = End of file
 
         Everything in between '#' character and newline character gets ignored.
 
