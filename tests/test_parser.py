@@ -9,7 +9,7 @@ import unittest
 from nem.lexer import Lexer
 from nem.parser import Parser
 from nem.exceptions import ParserException
-from nem.nodes import Number, UnaryOperation, BinaryOperation
+from nem.nodes import *
 
 
 class ParserTestCase(unittest.TestCase):
@@ -38,7 +38,28 @@ class ParserTestCase(unittest.TestCase):
             list(Parser(Lexer("\n2+").lex()).parse())
 
         with self.assertRaises(ParserException):
-            list(Parser(Lexer("(1+1\n").lex()).parse())
+            list(Parser(Lexer("import\n").lex()).parse())
+
+        with self.assertRaises(ParserException):
+            list(Parser(Lexer("nem(1, 2\n").lex()).parse())
+
+        with self.assertRaises(ParserException):
+            list(Parser(Lexer("function nem\n").lex()).parse())
+
+        with self.assertRaises(ParserException):
+            list(Parser(Lexer("function nem(a,b\n").lex()).parse())
+
+        with self.assertRaises(ParserException):
+            list(Parser(Lexer("function nem(a,\n").lex()).parse())
+
+        with self.assertRaises(ParserException):
+            list(Parser(Lexer("function nem(1\n").lex()).parse())
+
+        with self.assertRaises(ParserException):
+            list(Parser(Lexer("[1,2,3\n").lex()).parse())
+
+        with self.assertRaises(ParserException):
+            list(Parser(Lexer("a[1\n").lex()).parse())
 
 
 if __name__ == '__main__':

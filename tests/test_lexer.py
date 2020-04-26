@@ -25,6 +25,8 @@ class LexerTestCase(unittest.TestCase):
         Tests the lexer.
 
         """
+        self.maxDiff = None
+
         with open("test_cases/test_lexer.in") as _input:
             _input = _input.read()
 
@@ -34,16 +36,16 @@ class LexerTestCase(unittest.TestCase):
         self.assertEqual(list(Lexer(_input).lex()), output)
 
         with self.assertRaises(LexerException):
-            list(Lexer("\n\"\"\"").lex())
+            list(Lexer("\n@").lex())
 
         with self.assertRaises(LexerException):
-            list(Lexer("\n..\n").lex())
+            list(Lexer("\n\"\n").lex())
 
         with self.assertRaises(LexerException):
             list(Lexer(".\n").lex())
 
         with self.assertRaises(LexerException):
-            list(Lexer("\n'\n").lex())
+            list(Lexer("\n2.\n").lex())
 
 
 if __name__ == '__main__':

@@ -2,8 +2,6 @@
 
 function fib(first, second, stop) (
     while (first < stop) (
-        output first
-
         temporary = first
         first = second
         second = temporary + second

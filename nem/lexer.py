@@ -2,52 +2,51 @@
 
 Holds the Lexer class which is used for converting raw source code into tokens.
 
-Tokens:
-    NUMBER = re'[0-9]*\.?[0-9]+'
-    TEXT = re'".*"' ::: DOTALL flag
-    SYMBOL = re'[a-zA-Z_][a-zA-Z_0-9]*'
-    NULL = 'null'
-    LIST_ELEMENT = ','
-    CARET = '^'
-    ASTERISK = '*'
-    SLASH = '/'
-    PLUS = '+'
-    MINUS = '-'
-    EQUAL = '='
-    INPUT = 'input'
-    OUTPUT = 'output'
-    ERROR = 'error'
-    WHILE = 'while'
-    LEFT_BRACKET = '('
-    RIGHT_BRACKET = ')'
-    IF = 'if'
-    OTHERWISE = 'otherwise'
-    FUNCTION = 'function'
-    IMPORT = 'import'
-    FILE = 'file'
-    READ = 'read'
-    WRITE = 'write'
-    CONVERT = 'convert'
-    NUMBER_DEFINITION = 'number'
-    TEXT_DEFINITION = 'text'
-    LIST_DEFINITION = 'list'
-    LEFT_SQUARE = '['
-    RIGHT_SQUARE = ']'
-    BREAK = 'break'
-    CONTINUE = 'continue'
-    RETURN = 'return'
-    NOT = 'not'
-    OR = 'or'
-    AND = 'and'
-    LESS = '<'
-    LESS_EQUAL = '<='
-    GREATER = '>'
-    GREATER_EQUAL = '>='
-    IS = 'is'
-    MODULO = '%'
-    EOF = End of file
-
-Everything in between '#' character and newline character gets ignored.
+Tokens (Extended Backus-Naur form):
+    LETTER_           = "A" | "B" | "C" | "D" | "E" | "F" | "G"
+                      | "H" | "I" | "J" | "K" | "L" | "M" | "N"
+                      | "O" | "P" | "Q" | "R" | "S" | "T" | "U"
+                      | "V" | "W" | "X" | "Y" | "Z" | "a" | "b"
+                      | "c" | "d" | "e" | "f" | "g" | "h" | "i"
+                      | "j" | "k" | "l" | "m" | "n" | "o" | "p"
+                      | "q" | "r" | "s" | "t" | "u" | "v" | "w"
+                      | "x" | "y" | "z" ;
+    DIGIT_            = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
+    ESCAPED_          = "\n" | "\t" | "\\" | '\"' ;
+    NUMBER            = { DIGIT_ }, [ "." ], DIGIT_, { DIGIT_ } ;
+    TEXT              = '"', { ? any character other than double quotation mark ? | ESCAPED_ }, '"' ;
+    SYMBOL            = LETTER_ | "_", { LETTER_ | "_" | DIGIT_ } ;
+    NULL              = "null" ;
+    COMMA             = "," ;
+    CARET             = "^" ;
+    ASTERISK          = "*" ;
+    SLASH             = "/" ;
+    PLUS              = "+" ;
+    MINUS             = "-" ;
+    EQUAL             = "=" ;
+    WHILE             = "while" ;
+    LEFT_BRACKET      = "(" ;
+    RIGHT_BRACKET     = ")" ;
+    IF                = "if" ;
+    OTHERWISE         = "otherwise" ;
+    FUNCTION          = "function" ;
+    IMPORT            = "import" ;
+    LEFT_SQUARE       = "[" ;
+    RIGHT_SQUARE      = "]" ;
+    BREAK             = "break" ;
+    CONTINUE          = "continue" ;
+    RETURN            = "return" ;
+    NOT               = "not" ;
+    OR                = "or" ;
+    AND               = "and" ;
+    LESS              = "<" ;
+    LESS_EQUAL        = "<=" ;
+    GREATER           = ">" ;
+    GREATER_EQUAL     = ">=" ;
+    IS                = "is" ;
+    MODULO            = "%" ;
+    EOF               = ? end of file ? ;
+    COMMENT_          = "#", { ? any character other than newline ? }, "\n" ;
 
 """
 
@@ -66,21 +65,11 @@ class Lexer:
 
     SYMBOLS = {
         "null": Token.NULL,
-        "input": Token.INPUT,
-        "output": Token.OUTPUT,
-        "error": Token.ERROR,
         "while": Token.WHILE,
         "if": Token.IF,
         "otherwise": Token.OTHERWISE,
         "function": Token.FUNCTION,
         "import": Token.IMPORT,
-        "file": Token.FILE,
-        "read": Token.READ,
-        "write": Token.WRITE,
-        "convert": Token.CONVERT,
-        "number": Token.NUMBER_DEFINITION,
-        "text": Token.TEXT_DEFINITION,
-        "list": Token.LIST_DEFINITION,
         "break": Token.BREAK,
         "continue": Token.CONTINUE,
         "return": Token.RETURN,
@@ -126,7 +115,6 @@ class Lexer:
             length += 1
             self._advance_index()
 
-        # If a number has a decimal place, but no decimals - LexerException is raised
         if self.previous_character == ".":
             raise LexerException("Lexing Error (Line {}): Unrecognized token".format(self.line))
 
@@ -154,7 +142,7 @@ class Lexer:
     def _next_text(self):
         """Return next text.
 
-        Everything between the current or found quotation mark and the next one gets lexed.
+        Everything between the current or found quotation mark and the next unescaped one gets lexed.
 
         """
         # Tries to find the next text
@@ -167,12 +155,22 @@ class Lexer:
         length = 0
         self._advance_index()
 
+        escaped_characters = (
+            "n",
+            "t",
+            "\"",
+            "\\"
+        )
+
         # Up until it reaches the closing quotation mark, it continues adding all the characters to text
         while self.current_character is not None and self.current_character != "\"":
             length += 1
             self._advance_index()
 
-        # If there's no closing quotation mark - LexerException is raised
+            if self.previous_character == "\\" and self.current_character in escaped_characters:
+                length += 1
+                self._advance_index()
+
         if self.current_character is None:
             raise LexerException("Lexing Error (Line {}): Text doesn't have an end".format(self.line))
 
@@ -191,9 +189,9 @@ class Lexer:
             self._advance_index()
             token = False
 
-        # Lexes LIST_ELEMENT token
+        # Lexes COMMA token
         elif self.current_character == ",":
-            token = Token(Token.LIST_ELEMENT, self.current_character, self.line)
+            token = Token(Token.COMMA, self.current_character, self.line)
             self._advance_index()
 
         # Lexes CARET token
@@ -301,7 +299,6 @@ class Lexer:
 
             token = False
 
-        # If there's no token to describe the current character - raises LexerException
         else:
             raise LexerException("Lexing Error (Line {}): Unrecognized token".format(self.line))
 
@@ -325,52 +322,51 @@ class Lexer:
 
         Lexer for Nem code.
 
-        Tokens:
-            NUMBER = re'[0-9]*\.?[0-9]+'
-            TEXT = re'".*"' ::: DOTALL flag
-            SYMBOL = re'[a-zA-Z_][a-zA-Z_0-9]*'
-            NULL = 'null'
-            LIST_ELEMENT = ','
-            CARET = '^'
-            ASTERISK = '*'
-            SLASH = '/'
-            PLUS = '+'
-            MINUS = '-'
-            EQUAL = '='
-            INPUT = 'input'
-            OUTPUT = 'output'
-            ERROR = 'error'
-            WHILE = 'while'
-            LEFT_BRACKET = '('
-            RIGHT_BRACKET = ')'
-            IF = 'if'
-            OTHERWISE = 'otherwise'
-            FUNCTION = 'function'
-            IMPORT = 'import'
-            FILE = 'file'
-            READ = 'read'
-            WRITE = 'write'
-            CONVERT = 'convert'
-            NUMBER_DEFINITION = 'number'
-            TEXT_DEFINITION = 'text'
-            LIST_DEFINITION = 'list'
-            LEFT_SQUARE = '['
-            RIGHT_SQUARE = ']'
-            BREAK = 'break'
-            CONTINUE = 'continue'
-            RETURN = 'return'
-            NOT = 'not'
-            OR = 'or'
-            AND = 'and'
-            LESS = '<'
-            LESS_EQUAL = '<='
-            GREATER = '>'
-            GREATER_EQUAL = '>='
-            IS = 'is'
-            MODULO = '%'
-            EOF = End of file
-
-        Everything in between '#' character and newline character gets ignored.
+        Tokens (Extended Backus-Naur form):
+            LETTER_           = "A" | "B" | "C" | "D" | "E" | "F" | "G"
+                              | "H" | "I" | "J" | "K" | "L" | "M" | "N"
+                              | "O" | "P" | "Q" | "R" | "S" | "T" | "U"
+                              | "V" | "W" | "X" | "Y" | "Z" | "a" | "b"
+                              | "c" | "d" | "e" | "f" | "g" | "h" | "i"
+                              | "j" | "k" | "l" | "m" | "n" | "o" | "p"
+                              | "q" | "r" | "s" | "t" | "u" | "v" | "w"
+                              | "x" | "y" | "z" ;
+            DIGIT_            = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
+            ESCAPED_          = "\n" | "\t" | "\\" | '\"' ;
+            NUMBER            = { DIGIT_ }, [ "." ], DIGIT_, { DIGIT_ } ;
+            TEXT              = '"', { ? any character other than double quotation mark ? | ESCAPED_ }, '"' ;
+            SYMBOL            = LETTER_ | "_", { LETTER_ | "_" | DIGIT_ } ;
+            NULL              = "null" ;
+            COMMA             = "," ;
+            CARET             = "^" ;
+            ASTERISK          = "*" ;
+            SLASH             = "/" ;
+            PLUS              = "+" ;
+            MINUS             = "-" ;
+            EQUAL             = "=" ;
+            WHILE             = "while" ;
+            LEFT_BRACKET      = "(" ;
+            RIGHT_BRACKET     = ")" ;
+            IF                = "if" ;
+            OTHERWISE         = "otherwise" ;
+            FUNCTION          = "function" ;
+            IMPORT            = "import" ;
+            LEFT_SQUARE       = "[" ;
+            RIGHT_SQUARE      = "]" ;
+            BREAK             = "break" ;
+            CONTINUE          = "continue" ;
+            RETURN            = "return" ;
+            NOT               = "not" ;
+            OR                = "or" ;
+            AND               = "and" ;
+            LESS              = "<" ;
+            LESS_EQUAL        = "<=" ;
+            GREATER           = ">" ;
+            GREATER_EQUAL     = ">=" ;
+            IS                = "is" ;
+            MODULO            = "%" ;
+            EOF               = ? end of file ? ;
+            COMMENT_          = "#", { ? any character other than newline ? }, "\n" ;
 
         """
         return self._tokens()

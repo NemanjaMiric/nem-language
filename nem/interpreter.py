@@ -36,51 +36,51 @@ class Interpreter:
 
         Lexer for Nem code. Turns raw source code into tokens.
 
-        Tokens:
-            NUMBER = re'[0-9]*\.?[0-9]+'
-            TEXT = re'".*"' ::: DOTALL flag
-            SYMBOL = re'[a-zA-Z_][a-zA-Z_0-9]*'
-            NULL = 'null'
-            LIST_ELEMENT = ','
-            CARET = '^'
-            ASTERISK = '*'
-            SLASH = '/'
-            PLUS = '+'
-            MINUS = '-'
-            EQUAL = '='
-            INPUT = 'input'
-            OUTPUT = 'output'
-            ERROR = 'error'
-            WHILE = 'while'
-            LEFT_BRACKET = '('
-            RIGHT_BRACKET = ')'
-            IF = 'if'
-            OTHERWISE = 'otherwise'
-            FUNCTION = 'function'
-            IMPORT = 'import'
-            FILE = 'file'
-            READ = 'read'
-            WRITE = 'write'
-            CONVERT = 'convert'
-            NUMBER_DEFINITION = 'number'
-            TEXT_DEFINITION = 'text'
-            LIST_DEFINITION = 'list'
-            LEFT_SQUARE = '['
-            RIGHT_SQUARE = ']'
-            BREAK = 'break'
-            CONTINUE = 'continue'
-            RETURN = 'return'
-            NOT = 'not'
-            OR = 'or'
-            AND = 'and'
-            LESS = '<'
-            LESS_EQUAL = '<='
-            GREATER = '>'
-            GREATER_EQUAL = '>='
-            IS = 'is'
-            EOF = End of file
-
-        Everything in between '#' character and newline character gets ignored.
+        Tokens (Extended Backus-Naur form):
+            LETTER_           = "A" | "B" | "C" | "D" | "E" | "F" | "G"
+                              | "H" | "I" | "J" | "K" | "L" | "M" | "N"
+                              | "O" | "P" | "Q" | "R" | "S" | "T" | "U"
+                              | "V" | "W" | "X" | "Y" | "Z" | "a" | "b"
+                              | "c" | "d" | "e" | "f" | "g" | "h" | "i"
+                              | "j" | "k" | "l" | "m" | "n" | "o" | "p"
+                              | "q" | "r" | "s" | "t" | "u" | "v" | "w"
+                              | "x" | "y" | "z" ;
+            DIGIT_            = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
+            ESCAPED_          = "\n" | "\t" | "\\" | '\"' ;
+            NUMBER            = { DIGIT_ }, [ "." ], DIGIT_, { DIGIT_ } ;
+            TEXT              = '"', { ? any character other than double quotation mark ? | ESCAPED_ }, '"' ;
+            SYMBOL            = LETTER_ | "_", { LETTER_ | "_" | DIGIT_ } ;
+            NULL              = "null" ;
+            COMMA             = "," ;
+            CARET             = "^" ;
+            ASTERISK          = "*" ;
+            SLASH             = "/" ;
+            PLUS              = "+" ;
+            MINUS             = "-" ;
+            EQUAL             = "=" ;
+            WHILE             = "while" ;
+            LEFT_BRACKET      = "(" ;
+            RIGHT_BRACKET     = ")" ;
+            IF                = "if" ;
+            OTHERWISE         = "otherwise" ;
+            FUNCTION          = "function" ;
+            IMPORT            = "import" ;
+            LEFT_SQUARE       = "[" ;
+            RIGHT_SQUARE      = "]" ;
+            BREAK             = "break" ;
+            CONTINUE          = "continue" ;
+            RETURN            = "return" ;
+            NOT               = "not" ;
+            OR                = "or" ;
+            AND               = "and" ;
+            LESS              = "<" ;
+            LESS_EQUAL        = "<=" ;
+            GREATER           = ">" ;
+            GREATER_EQUAL     = ">=" ;
+            IS                = "is" ;
+            MODULO            = "%" ;
+            EOF               = ? end of file ? ;
+            COMMENT_          = "#", { ? any character other than newline ? }, "\n" ;
 
         """
         return self.lexer.lex()
@@ -91,11 +91,32 @@ class Interpreter:
         Parses the tokens that get returned from the lexer and builds an Abstract Syntax Tree out of them.
 
         Nem definitions (Extended Backus-Naur form):
-            atom       = NUMBER | LEFT_BRACKET, expression, RIGHT_BRACKET
-            power      = atom, { CARET, factor }
-            factor     = [ PLUS | MINUS ], power
-            term       = factor, { ( ASTERISK | SLASH ), factor }
-            expression = term, { ( PLUS | MINUS | MODULO ), term }
+            list_index = LEFT_SQUARE, expression, RIGHT_SQUARE ;
+            list       = LEFT_SQUARE, [ expression, { COMMA, expression } ], RIGHT_SQUARE ;
+            function   = FUNCTION, [ SYMBOL ], LEFT_BRACKET, [ SYMBOL, { COMMA, SYMBOL } ], RIGHT_BRACKET, expression ;
+            while      = WHILE, expression, expression ;
+            if_else    = IF, expression, expression, [ OTHERWISE, expression ] ;
+            atom       = NUMBER
+                       | LEFT_BRACKET, expression, { expression }, RIGHT_BRACKET
+                       | SYMBOL, [ LEFT_BRACKET, [ expression, { COMMA, expression } ], RIGHT_BRACKET | list_index ]
+                       | if_else
+                       | while
+                       | function
+                       | TEXT
+                       | list, [ list_index ]
+                       | RETURN, expression
+                       | CONTINUE
+                       | BREAK
+                       | NULL
+                       | IMPORT, TEXT;
+            power      = atom, { CARET, factor } ;
+            factor     = [ PLUS | MINUS ], power ;
+            term       = factor, { ( ASTERISK | SLASH ), factor } ;
+            arithmetic = term, { ( PLUS | MINUS | MODULO ), term } ;
+            comparison = NOT, comparison
+                       | arithmetic, { ( IS | LESS | LESS_EQUAL | GREATER | GREATER_EQUAL ), arithmetic } ;
+            expression = comparison, { ( AND | OR ), comparison }
+                       | SYMBOL, EQUAL, expression ;
 
         """
         return self.parser.parse()
