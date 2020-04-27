@@ -7,11 +7,11 @@ Nem definitions (Extended Backus-Naur form):
     list       = LEFT_SQUARE, [ expression, { COMMA, expression } ], RIGHT_SQUARE ;
     function   = FUNCTION, [ SYMBOL ], LEFT_BRACKET, [ SYMBOL, { COMMA, SYMBOL } ], RIGHT_BRACKET, expression ;
     while      = WHILE, expression, expression ;
-    if_else    = IF, expression, expression, [ OTHERWISE, expression ] ;
+    if         = IF, expression, expression, [ OTHERWISE, expression ] ;
     atom       = NUMBER
                | LEFT_BRACKET, expression, { expression }, RIGHT_BRACKET
                | SYMBOL, [ LEFT_BRACKET, [ expression, { COMMA, expression } ], RIGHT_BRACKET | list_index ]
-               | if_else
+               | if
                | while
                | function
                | TEXT
@@ -20,7 +20,7 @@ Nem definitions (Extended Backus-Naur form):
                | CONTINUE
                | BREAK
                | NULL
-               | IMPORT, TEXT;
+               | IMPORT, TEXT ;
     power      = atom, { CARET, factor } ;
     factor     = [ PLUS | MINUS ], power ;
     term       = factor, { ( ASTERISK | SLASH ), factor } ;
@@ -218,14 +218,14 @@ class Parser:
 
         raise ParserException("Parsing Error (Line {}): Expected a while loop".format(self.current_token.line))
 
-    def _if_else(self):
-        """Parse an if_else.
+    def _if(self):
+        """Parse an if.
 
         Extended Backus-Naur form:
-            if_else = IF, expression, expression, [ OTHERWISE, expression ] ;
+            if = IF, expression, expression, [ OTHERWISE, expression ] ;
 
         """
-        # if_else = IF, expression, expression, [ OTHERWISE, expression ] ;
+        # if = IF, expression, expression, [ OTHERWISE, expression ] ;
         if self.current_token.type == Token.IF:
             self._advance_index()
 
@@ -238,11 +238,11 @@ class Parser:
 
                 temporary_else_expression = self._expression()
 
-                temporary = ast.IfElse(temporary_condition, temporary_if_expression, temporary_else_expression)
+                temporary = ast.IfOtherwise(temporary_condition, temporary_if_expression, temporary_else_expression)
 
                 return temporary
             else:
-                temporary = ast.IfElse(temporary_condition, temporary_if_expression)
+                temporary = ast.IfOtherwise(temporary_condition, temporary_if_expression)
 
                 return temporary
 
@@ -253,19 +253,19 @@ class Parser:
         """Parse an atom.
 
         Extended Backus-Naur form:
-            atom       = NUMBER
-                       | LEFT_BRACKET, expression, { expression }, RIGHT_BRACKET
-                       | SYMBOL, [ LEFT_BRACKET, [ expression, { COMMA, expression } ], RIGHT_BRACKET | list_index ]
-                       | if_else
-                       | while
-                       | function
-                       | TEXT
-                       | list, [ list_index ]
-                       | RETURN, expression
-                       | CONTINUE
-                       | BREAK
-                       | NULL
-                       | IMPORT, TEXT;
+            atom = NUMBER
+                 | LEFT_BRACKET, expression, { expression }, RIGHT_BRACKET
+                 | SYMBOL, [ LEFT_BRACKET, [ expression, { COMMA, expression } ], RIGHT_BRACKET | list_index ]
+                 | if
+                 | while
+                 | function
+                 | TEXT
+                 | list, [ list_index ]
+                 | RETURN, expression
+                 | CONTINUE
+                 | BREAK
+                 | NULL
+                 | IMPORT, TEXT ;
 
         """
         # atom = NUMBER ;
@@ -343,9 +343,9 @@ class Parser:
 
             return temporary
 
-        # atom = if_else ;
+        # atom = if ;
         elif self.current_token.type == Token.IF:
-            temporary = self._if_else()
+            temporary = self._if()
 
             return temporary
 
@@ -547,13 +547,13 @@ class Parser:
         Nem definitions (Extended Backus-Naur form):
             list_index = LEFT_SQUARE, expression, RIGHT_SQUARE ;
             list       = LEFT_SQUARE, [ expression, { COMMA, expression } ], RIGHT_SQUARE ;
-            function   = FUNCTION, [ SYMBOL ], LEFT_BRACKET, [ SYMBOL, { COMMA, SYMBOL } ], RIGHT_BRACKET, expression ;
+            function     = FUNCTION, [ SYMBOL ], LEFT_BRACKET, [ SYMBOL, { COMMA, SYMBOL } ], RIGHT_BRACKET, expression ;
             while      = WHILE, expression, expression ;
-            if_else    = IF, expression, expression, [ OTHERWISE, expression ] ;
+            if         = IF, expression, expression, [ OTHERWISE, expression ] ;
             atom       = NUMBER
                        | LEFT_BRACKET, expression, { expression }, RIGHT_BRACKET
                        | SYMBOL, [ LEFT_BRACKET, [ expression, { COMMA, expression } ], RIGHT_BRACKET | list_index ]
-                       | if_else
+                       | if
                        | while
                        | function
                        | TEXT
@@ -562,7 +562,7 @@ class Parser:
                        | CONTINUE
                        | BREAK
                        | NULL
-                       | IMPORT, TEXT;
+                       | IMPORT, TEXT ;
             power      = atom, { CARET, factor } ;
             factor     = [ PLUS | MINUS ], power ;
             term       = factor, { ( ASTERISK | SLASH ), factor } ;

@@ -178,23 +178,24 @@ class AssignmentOperation(Node):
         return "AssignmentOperation({}, {})".format(repr(self.variable), repr(self.value))
 
 
-class IfElse(Node):
+class IfOtherwise(Node):
 
-    """Hold an if-else statement.
+    """Hold an if-otherwise statement.
 
-    Holds an if-else statement.
+    Holds an if-otherwise statement.
 
     """
 
-    def __init__(self, condition, if_expression, else_expression=None):
-        """Initialize IfElse class."""
+    def __init__(self, condition, if_expression, otherwise_expression=None):
+        """Initialize IfOtherwise class."""
         self.condition = condition
         self.if_expression = if_expression
-        self.else_expression = else_expression
+        self.otherwise_expression = otherwise_expression
 
     def __repr__(self):
-        """Represent IfElse class."""
-        return "IfElse({}, {}, {})".format(repr(self.condition), repr(self.if_expression), repr(self.else_expression))
+        """Represent IfOtherwise class."""
+        return "IfOtherwise({}, {}, {})"                                                                               \
+               .format(repr(self.condition), repr(self.if_expression), repr(self.otherwise_expression))
 
 
 class While(Node):

@@ -20,10 +20,10 @@ class Interpreter:
     def __init__(self, code):
         """Initialize the Interpreter class.
 
-        Initializes the Interpreter class and adds a newline character to the end of the Nem code for handling EOF.
+        Initializes the Interpreter class.
 
         """
-        self.code = "{}\n".format(code)
+        self.code = code
 
         self.lexer = Lexer(self.code)
         self.tokens = self.lex()
@@ -93,13 +93,13 @@ class Interpreter:
         Nem definitions (Extended Backus-Naur form):
             list_index = LEFT_SQUARE, expression, RIGHT_SQUARE ;
             list       = LEFT_SQUARE, [ expression, { COMMA, expression } ], RIGHT_SQUARE ;
-            function   = FUNCTION, [ SYMBOL ], LEFT_BRACKET, [ SYMBOL, { COMMA, SYMBOL } ], RIGHT_BRACKET, expression ;
+            function     = FUNCTION, [ SYMBOL ], LEFT_BRACKET, [ SYMBOL, { COMMA, SYMBOL } ], RIGHT_BRACKET, expression ;
             while      = WHILE, expression, expression ;
-            if_else    = IF, expression, expression, [ OTHERWISE, expression ] ;
+            if         = IF, expression, expression, [ OTHERWISE, expression ] ;
             atom       = NUMBER
                        | LEFT_BRACKET, expression, { expression }, RIGHT_BRACKET
                        | SYMBOL, [ LEFT_BRACKET, [ expression, { COMMA, expression } ], RIGHT_BRACKET | list_index ]
-                       | if_else
+                       | if
                        | while
                        | function
                        | TEXT
@@ -108,7 +108,7 @@ class Interpreter:
                        | CONTINUE
                        | BREAK
                        | NULL
-                       | IMPORT, TEXT;
+                       | IMPORT, TEXT ;
             power      = atom, { CARET, factor } ;
             factor     = [ PLUS | MINUS ], power ;
             term       = factor, { ( ASTERISK | SLASH ), factor } ;
