@@ -20,7 +20,7 @@ class Interpreter:
     def __init__(self, code):
         """Initialize the Interpreter class.
 
-        Initializes the Interpreter class.
+        Initializes the Interpreter class
 
         """
         self.code = code
@@ -93,12 +93,13 @@ class Interpreter:
         Nem definitions (Extended Backus-Naur form):
             list_index = LEFT_SQUARE, expression, RIGHT_SQUARE ;
             list       = LEFT_SQUARE, [ expression, { COMMA, expression } ], RIGHT_SQUARE ;
-            function     = FUNCTION, [ SYMBOL ], LEFT_BRACKET, [ SYMBOL, { COMMA, SYMBOL } ], RIGHT_BRACKET, expression ;
+            function   = FUNCTION, [ SYMBOL ], LEFT_BRACKET, [ SYMBOL, { COMMA, SYMBOL } ], RIGHT_BRACKET, expression ;
+            arguments  = LEFT_BRACKET, [ expression, { COMMA, expression } ], RIGHT_BRACKET ;
             while      = WHILE, expression, expression ;
             if         = IF, expression, expression, [ OTHERWISE, expression ] ;
             atom       = NUMBER
                        | LEFT_BRACKET, expression, { expression }, RIGHT_BRACKET
-                       | SYMBOL, [ LEFT_BRACKET, [ expression, { COMMA, expression } ], RIGHT_BRACKET | list_index ]
+                       | SYMBOL, { arguments }, [list_index]
                        | if
                        | while
                        | function
@@ -108,7 +109,7 @@ class Interpreter:
                        | CONTINUE
                        | BREAK
                        | NULL
-                       | IMPORT, TEXT ;
+                       | IMPORT, TEXT;
             power      = atom, { CARET, factor } ;
             factor     = [ PLUS | MINUS ], power ;
             term       = factor, { ( ASTERISK | SLASH ), factor } ;
@@ -120,6 +121,14 @@ class Interpreter:
 
         """
         return self.parser.parse()
+
+    def evaluate(self):
+        """Evaluate the AST.
+
+        Evaluator for Nem code. Evaluates the Abstract Syntax Tree created by the parser.
+
+        """
+        pass
 
 
 def main():

@@ -6,11 +6,12 @@ Nem definitions (Extended Backus-Naur form):
     list_index = LEFT_SQUARE, expression, RIGHT_SQUARE ;
     list       = LEFT_SQUARE, [ expression, { COMMA, expression } ], RIGHT_SQUARE ;
     function   = FUNCTION, [ SYMBOL ], LEFT_BRACKET, [ SYMBOL, { COMMA, SYMBOL } ], RIGHT_BRACKET, expression ;
+    arguments  = LEFT_BRACKET, [ expression, { COMMA, expression } ], RIGHT_BRACKET ;
     while      = WHILE, expression, expression ;
     if         = IF, expression, expression, [ OTHERWISE, expression ] ;
     atom       = NUMBER
                | LEFT_BRACKET, expression, { expression }, RIGHT_BRACKET
-               | SYMBOL, [ LEFT_BRACKET, [ expression, { COMMA, expression } ], RIGHT_BRACKET | list_index ]
+               | SYMBOL, { arguments }, [list_index]
                | if
                | while
                | function
@@ -20,7 +21,7 @@ Nem definitions (Extended Backus-Naur form):
                | CONTINUE
                | BREAK
                | NULL
-               | IMPORT, TEXT ;
+               | IMPORT, TEXT;
     power      = atom, { CARET, factor } ;
     factor     = [ PLUS | MINUS ], power ;
     term       = factor, { ( ASTERISK | SLASH ), factor } ;
@@ -197,6 +198,45 @@ class Parser:
 
         raise ParserException("Parsing Error (Line {}): Expected a function definition".format(self.current_token.line))
 
+    def _arguments(self, holder):
+        """Parse arguments.
+
+        Extended Backus-Naur form:
+            arguments = LEFT_BRACKET, [ expression, { COMMA, expression } ], RIGHT_BRACKET ;
+
+        """
+        # arguments = LEFT_BRACKET, [ expression, { COMMA, expression } ], RIGHT_BRACKET ;
+        if self.current_token.type == Token.LEFT_BRACKET:
+            temporary_arguments = []
+            self._advance_index()
+
+            if self.current_token.type == Token.RIGHT_BRACKET:
+                temporary = ast.FunctionCall(holder, temporary_arguments)
+                self._advance_index()
+
+                return temporary
+            else:
+                temporary_expression = self._expression()
+                temporary_arguments.append(temporary_expression)
+
+                while self.current_token.type == Token.COMMA:
+                    self._advance_index()
+
+                    temporary_expression = self._expression()
+                    temporary_arguments.append(temporary_expression)
+
+                if self.current_token.type == Token.RIGHT_BRACKET:
+                    temporary = ast.FunctionCall(holder, temporary_arguments)
+                    self._advance_index()
+
+                    return temporary
+                else:
+                    raise ParserException("Parsing Error (Line {}): Expected a closing bracket"
+                                          .format(self.current_token.line))
+        else:
+            raise ParserException("Parsing Error (Line {}): Expected an open bracket"
+                                  .format(self.current_token.line))
+
     def _while(self):
         """Parse a while.
 
@@ -255,7 +295,7 @@ class Parser:
         Extended Backus-Naur form:
             atom = NUMBER
                  | LEFT_BRACKET, expression, { expression }, RIGHT_BRACKET
-                 | SYMBOL, [ LEFT_BRACKET, [ expression, { COMMA, expression } ], RIGHT_BRACKET | list_index ]
+                 | SYMBOL, { arguments }, [list_index]
                  | if
                  | while
                  | function
@@ -265,7 +305,7 @@ class Parser:
                  | CONTINUE
                  | BREAK
                  | NULL
-                 | IMPORT, TEXT ;
+                 | IMPORT, TEXT;
 
         """
         # atom = NUMBER ;
@@ -297,51 +337,27 @@ class Parser:
 
             return temporary
 
-        # atom = SYMBOL, [ LEFT_BRACKET, [ expression, { COMMA, expression } ], RIGHT_BRACKET | list_index ] ;
+        # atom = SYMBOL, { arguments }, [list_index] ;
         elif self.current_token.type == Token.SYMBOL:
             temporary_symbol = self.current_token.value
+            temporary_call = temporary_symbol
             self._advance_index()
 
-            # atom = SYMBOL, LEFT_BRACKET, [ expression, { COMMA, expression } ], RIGHT_BRACKET ;
-            if self.current_token.type == Token.LEFT_BRACKET:
-                temporary_arguments = []
-                self._advance_index()
+            while self.current_token.type == Token.LEFT_BRACKET:
+                temporary_call = self._arguments(temporary_call)
 
-                if self.current_token.type == Token.RIGHT_BRACKET:
-                    temporary = ast.FunctionCall(temporary_symbol, temporary_arguments)
-                    self._advance_index()
-
-                    return temporary
-                else:
-                    temporary_expression = self._expression()
-
-                    temporary_arguments.append(temporary_expression)
-
-                    while self.current_token.type == Token.COMMA:
-                        self._advance_index()
-
-                        temporary_expression = self._expression()
-
-                        temporary_arguments.append(temporary_expression)
-
-                    if self.current_token.type == Token.RIGHT_BRACKET:
-                        temporary = ast.FunctionCall(temporary_symbol, temporary_arguments)
-                        self._advance_index()
-
-                        return temporary
-                    else:
-                        raise ParserException("Parsing Error (Line {}): Expected a closing bracket"
-                                              .format(self.current_token.line))
-
-            # atom = SYMBOL, list_index ;
-            elif self.current_token.type == Token.LEFT_SQUARE:
-                temporary = self._list_index(temporary_symbol)
+            if self.current_token.type == Token.LEFT_SQUARE:
+                temporary = self._list_index(temporary_call)
 
                 return temporary
+            elif isinstance(temporary_call, ast.FunctionCall):
+                temporary = temporary_call
 
-            temporary = ast.Variable(temporary_symbol)
+                return temporary
+            else:
+                temporary = ast.Variable(temporary_call)
 
-            return temporary
+                return temporary
 
         # atom = if ;
         elif self.current_token.type == Token.IF:
@@ -547,12 +563,13 @@ class Parser:
         Nem definitions (Extended Backus-Naur form):
             list_index = LEFT_SQUARE, expression, RIGHT_SQUARE ;
             list       = LEFT_SQUARE, [ expression, { COMMA, expression } ], RIGHT_SQUARE ;
-            function     = FUNCTION, [ SYMBOL ], LEFT_BRACKET, [ SYMBOL, { COMMA, SYMBOL } ], RIGHT_BRACKET, expression ;
+            function   = FUNCTION, [ SYMBOL ], LEFT_BRACKET, [ SYMBOL, { COMMA, SYMBOL } ], RIGHT_BRACKET, expression ;
+            arguments  = LEFT_BRACKET, [ expression, { COMMA, expression } ], RIGHT_BRACKET ;
             while      = WHILE, expression, expression ;
             if         = IF, expression, expression, [ OTHERWISE, expression ] ;
             atom       = NUMBER
                        | LEFT_BRACKET, expression, { expression }, RIGHT_BRACKET
-                       | SYMBOL, [ LEFT_BRACKET, [ expression, { COMMA, expression } ], RIGHT_BRACKET | list_index ]
+                       | SYMBOL, { arguments }, [list_index]
                        | if
                        | while
                        | function
@@ -562,7 +579,7 @@ class Parser:
                        | CONTINUE
                        | BREAK
                        | NULL
-                       | IMPORT, TEXT ;
+                       | IMPORT, TEXT;
             power      = atom, { CARET, factor } ;
             factor     = [ PLUS | MINUS ], power ;
             term       = factor, { ( ASTERISK | SLASH ), factor } ;
