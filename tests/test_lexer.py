@@ -33,19 +33,19 @@ class LexerTestCase(unittest.TestCase):
         with open("test_cases/test_lexer.out") as output:
             output = eval(output.read())
 
-        self.assertEqual(list(Lexer(_input).lex()), output)
+        self.assertEqual(list(Lexer(_input, "<stdin>").lex()), output)
 
         with self.assertRaises(LexerException):
-            list(Lexer("\n@").lex())
+            list(Lexer("\n@", "<stdin>").lex())
 
         with self.assertRaises(LexerException):
-            list(Lexer("\n\"\n").lex())
+            list(Lexer("\n\"\n", "<stdin>").lex())
 
         with self.assertRaises(LexerException):
-            list(Lexer(".\n").lex())
+            list(Lexer(".\n", "<stdin>").lex())
 
         with self.assertRaises(LexerException):
-            list(Lexer("\n2.\n").lex())
+            list(Lexer("\n2.\n", "<stdin>").lex())
 
 
 if __name__ == '__main__':

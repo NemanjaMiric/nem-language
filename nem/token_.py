@@ -48,7 +48,7 @@ class Token:
     MODULO = "MODULO"
     EOF = "EOF"
 
-    def __init__(self, type_, value, line):
+    def __init__(self, type_, value, filename, line):
         """Initialize class Token.
 
         Used for initializing the Token class.
@@ -56,15 +56,12 @@ class Token:
         """
         self.type = type_
         self.value = value
+        self.filename = filename
         self.line = line
 
     def __repr__(self):
         """Represent Token class."""
-        return "Token({}, {}, {})".format(repr(self.type), repr(self.value), repr(self.line))
-
-    def __str__(self):
-        """Convert Token class to string."""
-        return "{}={}".format(self.type, self.value)
+        return "Token({}, {}, {}, {})".format(repr(self.type), repr(self.value), repr(self.filename), repr(self.line))
 
     def __eq__(self, other):
         """Check equality of Token class."""

@@ -13,6 +13,9 @@ class Node:
 
     """
 
+    line = None
+    filename = None
+
     def __eq__(self, other):
         """Compare equality of classes."""
         if not isinstance(other, Node):
@@ -252,6 +255,10 @@ class FunctionCall(Node):
         """Represent FunctionCall class."""
         return "FunctionCall({}, {})".format(repr(self.name), repr(self.arguments))
 
+    def __hash__(self):
+        """Hash class."""
+        return hash("{}{}".format(self.name, self.arguments))
+
 
 class Import(Node):
 
@@ -261,13 +268,13 @@ class Import(Node):
 
     """
 
-    def __init__(self, filename):
+    def __init__(self, file):
         """Initialize Import class."""
-        self.filename = filename
+        self.file = file
 
     def __repr__(self):
         """Represent Import class."""
-        return "Import({})".format(repr(self.filename))
+        return "Import({})".format(repr(self.file))
 
 
 class Return(Node):
@@ -295,10 +302,6 @@ class Continue(Node):
 
     """
 
-    def __init__(self):
-        """Initialize Continue class."""
-        pass
-
     def __repr__(self):
         """Represent Continue class."""
         return "Continue()"
@@ -312,10 +315,6 @@ class Break(Node):
 
     """
 
-    def __init__(self):
-        """Initialize Break class."""
-        pass
-
     def __repr__(self):
         """Represent Break class."""
         return "Break()"
@@ -328,10 +327,6 @@ class Null(Node):
     Holds null.
 
     """
-
-    def __init__(self):
-        """Initialize Null class."""
-        pass
 
     def __repr__(self):
         """Represent Null class."""

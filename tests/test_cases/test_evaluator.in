@@ -1,7 +1,5 @@
 # Fibonacci numbers generator
 
-import "test"
-
 function fib(first, second, stop) (
     while (not 0 and not 0) (
         if(first < stop) (
@@ -20,7 +18,7 @@ fib(1, 1, 1000)
 a1 = [1, null, "\"text\""]
 _0 = (- 0.2 + .2) ^ (2 % 2) * (-2 + 02) ^ (2 - 2) + (-2 - 2) ^ (2 + 2) / (2 + 2) ^ (2 + 2) # comments are cool
 
-b = a[1]
+b = a1[1]
 
 function a() (
     function b()

@@ -5,8 +5,11 @@ Holds class Interpreter.
 """
 
 
-from nem.lexer import Lexer
-from nem.parser import Parser
+import nem.lexer
+import nem.parser
+import nem.evaluator
+from nem.symbol_table import SymbolTable
+import nem.types_ as value
 
 
 class Interpreter:
@@ -17,19 +20,24 @@ class Interpreter:
 
     """
 
-    def __init__(self, code):
+    def __init__(self, code, filename, symbol_table):
         """Initialize the Interpreter class.
 
         Initializes the Interpreter class
 
         """
         self.code = code
+        self.filename = filename
+        self.symbol_table = symbol_table
 
-        self.lexer = Lexer(self.code)
+        self.lexer = nem.lexer.Lexer(self.code, filename)
         self.tokens = self.lex()
 
-        self.parser = Parser(self.tokens)
+        self.parser = nem.parser.Parser(self.tokens)
         self.ast = self.parse()
+
+        self.evaluator = nem.evaluator.Evaluator(self.ast, self.symbol_table)
+        self.return_values = tuple(self.evaluator.evaluate())
 
     def lex(self):
         """Lex the code.
@@ -94,28 +102,28 @@ class Interpreter:
             list_index = LEFT_SQUARE, expression, RIGHT_SQUARE ;
             list       = LEFT_SQUARE, [ expression, { COMMA, expression } ], RIGHT_SQUARE ;
             function   = FUNCTION, [ SYMBOL ], LEFT_BRACKET, [ SYMBOL, { COMMA, SYMBOL } ], RIGHT_BRACKET, expression ;
-            arguments  = LEFT_BRACKET, [ expression, { COMMA, expression } ], RIGHT_BRACKET ;
+            arguments  = LEFT_BRACKET, [ expression, { COMMA, expression } ], RIGHT_BRACKET
             while      = WHILE, expression, expression ;
             if         = IF, expression, expression, [ OTHERWISE, expression ] ;
             atom       = NUMBER
                        | LEFT_BRACKET, expression, { expression }, RIGHT_BRACKET
-                       | SYMBOL, { arguments }, [list_index]
+                       | SYMBOL, { arguments }, { list_index }
                        | if
                        | while
                        | function
-                       | TEXT
-                       | list, [ list_index ]
+                       | TEXT, { list_index }
+                       | list, { list_index }
                        | RETURN, expression
                        | CONTINUE
                        | BREAK
                        | NULL
-                       | IMPORT, TEXT;
+                       | IMPORT, TEXT ;
             power      = atom, { CARET, factor } ;
             factor     = [ PLUS | MINUS ], power ;
             term       = factor, { ( ASTERISK | SLASH ), factor } ;
             arithmetic = term, { ( PLUS | MINUS | MODULO ), term } ;
-            comparison = NOT, comparison
-                       | arithmetic, { ( IS | LESS | LESS_EQUAL | GREATER | GREATER_EQUAL ), arithmetic } ;
+            not        = [ NOT ], arithmetic ;
+            comparison = not, { ( IS | LESS | LESS_EQUAL | GREATER | GREATER_EQUAL ), not } ;
             expression = comparison, { ( AND | OR ), comparison }
                        | SYMBOL, EQUAL, expression ;
 
@@ -128,7 +136,7 @@ class Interpreter:
         Evaluator for Nem code. Evaluates the Abstract Syntax Tree created by the parser.
 
         """
-        pass
+        return self.evaluator.evaluate()
 
 
 def main():
@@ -137,9 +145,16 @@ def main():
     Used as the entry-point when the file gets ran directly. It's usually used for debugging the class Interpreter.
 
     """
+    symbol_table = SymbolTable()
+    symbol_table.set("true", value.Number(1))
+    symbol_table.set("false", value.Number(0))
+    symbol_table.set("print", value.BuiltInFunction(["element"], 0))
+    symbol_table.set("input", value.BuiltInFunction([], 1))
+    symbol_table.set("convert", value.BuiltInFunction(["value", "type"], 2))
+
     while True:
-        interpreter = Interpreter(input(">> "))
-        print(list(interpreter.ast))
+        interpreter = Interpreter(input(">> "), "<stdin>", symbol_table)
+        print(list(interpreter.return_values))
 
 
 if __name__ == "__main__":

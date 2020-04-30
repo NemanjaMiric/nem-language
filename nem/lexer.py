@@ -79,9 +79,10 @@ class Lexer:
         "is": Token.IS
     }
 
-    def __init__(self, code):
+    def __init__(self, code, filename):
         """Initialize Lexer class."""
         self.code = code
+        self.filename = filename
 
         self.current_index = 0
         self.previous_character = None
@@ -104,7 +105,7 @@ class Lexer:
             self._advance_index()
 
         if self.current_character is None:
-            raise LexerException("No number found.")
+            raise LexerException("Lexing Error (File {}) (Line {}): No number found.".format(self.filename, self.line))
 
         length = 0
 
@@ -116,7 +117,8 @@ class Lexer:
             self._advance_index()
 
         if self.previous_character == ".":
-            raise LexerException("Lexing Error (Line {}): Unrecognized token".format(self.line))
+            raise LexerException("Lexing Error (File {}) (Line {}): Unrecognized token"
+                                 .format(self.filename, self.line))
 
         return self.code[self.current_index - length:self.current_index]
 
@@ -127,7 +129,7 @@ class Lexer:
             self._advance_index()
 
         if self.current_character is None:
-            raise LexerException("No symbol found.")
+            raise LexerException("Lexing Error (File {}) (Line {}): No symbol found.".format(self.filename, self.line))
 
         length = 0
 
@@ -150,7 +152,7 @@ class Lexer:
             self._advance_index()
 
         if self.current_character is None:
-            raise LexerException("No text found.")
+            raise LexerException("Lexing Error (File {}) (Line {}): No text found.".format(self.filename, self.line))
 
         length = 0
         self._advance_index()
@@ -172,12 +174,14 @@ class Lexer:
                 self._advance_index()
 
         if self.current_character is None:
-            raise LexerException("Lexing Error (Line {}): Text doesn't have an end".format(self.line))
+            raise LexerException("Lexing Error (File {}) (Line {}): Text doesn't have an end"
+                                 .format(self.filename, self.line))
 
         self._advance_index()
 
         # -1s are added because of self._advance_index() at the end, which increases self.current_index by 1
-        return self.code[self.current_index - length - 1:self.current_index - 1]
+        return self.code[self.current_index - length - 1:self.current_index - 1]\
+            .replace("\\n", "\n").replace("\\t", "\t").replace('\\"', "\"")
 
     def _next_token(self):
         """Return next token."""
@@ -191,62 +195,62 @@ class Lexer:
 
         # Lexes COMMA token
         elif self.current_character == ",":
-            token = Token(Token.COMMA, self.current_character, self.line)
+            token = Token(Token.COMMA, self.current_character, self.filename, self.line)
             self._advance_index()
 
         # Lexes CARET token
         elif self.current_character == "^":
-            token = Token(Token.CARET, self.current_character, self.line)
+            token = Token(Token.CARET, self.current_character, self.filename, self.line)
             self._advance_index()
 
         # Lexes ASTERISK token
         elif self.current_character == "*":
-            token = Token(Token.ASTERISK, self.current_character, self.line)
+            token = Token(Token.ASTERISK, self.current_character, self.filename, self.line)
             self._advance_index()
 
         # Lexes SLASH token
         elif self.current_character == "/":
-            token = Token(Token.SLASH, self.current_character, self.line)
+            token = Token(Token.SLASH, self.current_character, self.filename, self.line)
             self._advance_index()
 
         # Lexes PLUS token
         elif self.current_character == "+":
-            token = Token(Token.PLUS, self.current_character, self.line)
+            token = Token(Token.PLUS, self.current_character, self.filename, self.line)
             self._advance_index()
 
         # Lexes MINUS token
         elif self.current_character == "-":
-            token = Token(Token.MINUS, self.current_character, self.line)
+            token = Token(Token.MINUS, self.current_character, self.filename, self.line)
             self._advance_index()
 
         # Lexes MODULO token
         elif self.current_character == "%":
-            token = Token(Token.MODULO, self.current_character, self.line)
+            token = Token(Token.MODULO, self.current_character, self.filename, self.line)
             self._advance_index()
 
         # Lexes EQUAL token
         elif self.current_character == "=":
-            token = Token(Token.EQUAL, self.current_character, self.line)
+            token = Token(Token.EQUAL, self.current_character, self.filename, self.line)
             self._advance_index()
 
         # Lexes LEFT_BRACKET token
         elif self.current_character == "(":
-            token = Token(Token.LEFT_BRACKET, self.current_character, self.line)
+            token = Token(Token.LEFT_BRACKET, self.current_character, self.filename, self.line)
             self._advance_index()
 
         # Lexes RIGHT_BRACKET token
         elif self.current_character == ")":
-            token = Token(Token.RIGHT_BRACKET, self.current_character, self.line)
+            token = Token(Token.RIGHT_BRACKET, self.current_character, self.filename, self.line)
             self._advance_index()
 
         # Lexes LEFT_SQUARE token
         elif self.current_character == "[":
-            token = Token(Token.LEFT_SQUARE, self.current_character, self.line)
+            token = Token(Token.LEFT_SQUARE, self.current_character, self.filename, self.line)
             self._advance_index()
 
         # Lexes RIGHT_SQUARE token
         elif self.current_character == "]":
-            token = Token(Token.RIGHT_SQUARE, self.current_character, self.line)
+            token = Token(Token.RIGHT_SQUARE, self.current_character, self.filename, self.line)
             self._advance_index()
 
         # Lexes LESS or LESS_EQUAL token
@@ -254,38 +258,38 @@ class Lexer:
             self._advance_index()
             if self.current_character == "=":
                 token = Token(Token.LESS_EQUAL, "{}{}".format(self.previous_character, self.current_character),
-                              self.line)
+                              self.filename, self.line)
                 self._advance_index()
             else:
-                token = Token(Token.LESS, self.previous_character, self.line)
+                token = Token(Token.LESS, self.previous_character, self.filename, self.line)
 
         # Lexes GREATER or GREATER_EQUAL token
         elif self.current_character == ">":
             self._advance_index()
             if self.current_character == "=":
                 token = Token(Token.GREATER_EQUAL, "{}{}".format(self.previous_character, self.current_character),
-                              self.line)
+                              self.filename, self.line)
                 self._advance_index()
             else:
-                token = Token(Token.GREATER, self.previous_character, self.line)
+                token = Token(Token.GREATER, self.previous_character, self.filename, self.line)
 
         # Lexes TEXT token - everything between the current quotation mark and the next one gets lexed
         elif self.current_character == "\"":
-            token = Token(Token.TEXT, self._next_text(), self.line)
+            token = Token(Token.TEXT, self._next_text(), self.filename, self.line)
 
         # Lexes NUMBER token
         elif re.match("[0-9.]", self.current_character):
-            token = Token(Token.NUMBER, self._next_number(), self.line)
+            token = Token(Token.NUMBER, self._next_number(), self.filename, self.line)
 
         # Lexes both SYMBOL tokens and tokens comprised of letters
         elif re.match("[a-zA-Z_]", self.current_character):
             temporary = self._next_symbol()
 
             try:
-                token = Token(self.SYMBOLS[temporary], temporary, self.line)
+                token = Token(self.SYMBOLS[temporary], temporary, self.filename, self.line)
             except KeyError:
                 # If it's not a token comprised of letters, it's a SYMBOL token
-                token = Token(Token.SYMBOL, temporary, self.line)
+                token = Token(Token.SYMBOL, temporary, self.filename, self.line)
 
         elif self.current_character == "\n":
             self._advance_index()
@@ -300,7 +304,8 @@ class Lexer:
             token = False
 
         else:
-            raise LexerException("Lexing Error (Line {}): Unrecognized token".format(self.line))
+            raise LexerException("Lexing Error (File {}) (Line {}): Unrecognized token"
+                                 .format(self.filename, self.line))
 
         return token
 
@@ -315,7 +320,7 @@ class Lexer:
             current_token = self._next_token()
 
         # Appends the EOF token
-        yield Token(Token.EOF, None, self.line)
+        yield Token(Token.EOF, None, self.filename, self.line)
 
     def lex(self):
         """Lex the code.
@@ -379,7 +384,7 @@ def main():
 
     """
     while True:
-        print(list(Lexer(input(">> ") + "\n").lex()))
+        print(list(Lexer(input(">> ") + "\n", "<stdin>").lex()))
 
 
 if __name__ == "__main__":

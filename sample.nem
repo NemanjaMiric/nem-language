@@ -11,3 +11,14 @@ function fib(first, second, stop) (
 )
 
 fib(1, 1, 1000)
+
+# Higher-order function combined with function list indexing
+
+function hof() (
+    function inner_func() (
+        return [[1, 2], 2]
+    )
+    return inner_func
+)
+
+hof()()[0][1]

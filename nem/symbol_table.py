@@ -4,6 +4,8 @@ Holds class SymbolTable. Used for storing variable names and their values.
 
 """
 
+import copy
+
 
 class SymbolTable:
 
@@ -30,3 +32,10 @@ class SymbolTable:
     def set(self, name, value):
         """Set the value of the symbol with the specified name."""
         self.symbols[name] = value
+
+    def copy(self):
+        """Copy object."""
+        temporary_object = copy.deepcopy(self)
+        temporary_object.parent = self
+
+        return temporary_object

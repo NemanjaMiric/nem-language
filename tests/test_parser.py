@@ -30,36 +30,39 @@ class ParserTestCase(unittest.TestCase):
             _input = _input.read()
 
         with open("test_cases/test_parser.out") as output:
-            output = eval(output.read())
+            output = output.read()
 
-        self.assertEqual(list(Parser(Lexer(_input).lex()).parse()), output)
-
-        with self.assertRaises(ParserException):
-            list(Parser(Lexer("\n2+").lex()).parse())
+        self.assertEqual("".join(list(map(repr, Parser(Lexer(_input, "<stdin>").lex()).parse()))), output)
 
         with self.assertRaises(ParserException):
-            list(Parser(Lexer("import\n").lex()).parse())
+            list(Parser(Lexer("\n2+", "<stdin>").lex()).parse())
 
         with self.assertRaises(ParserException):
-            list(Parser(Lexer("nem(1, 2\n").lex()).parse())
+            list(Parser(Lexer("import\n", "<stdin>").lex()).parse())
 
         with self.assertRaises(ParserException):
-            list(Parser(Lexer("function nem\n").lex()).parse())
+            list(Parser(Lexer("nem(1, 2\n", "<stdin>").lex()).parse())
 
         with self.assertRaises(ParserException):
-            list(Parser(Lexer("function nem(a,b\n").lex()).parse())
+            list(Parser(Lexer("function nem\n", "<stdin>").lex()).parse())
 
         with self.assertRaises(ParserException):
-            list(Parser(Lexer("function nem(a,\n").lex()).parse())
+            list(Parser(Lexer("function nem(a,b\n", "<stdin>").lex()).parse())
 
         with self.assertRaises(ParserException):
-            list(Parser(Lexer("function nem(1\n").lex()).parse())
+            list(Parser(Lexer("function nem(a,\n", "<stdin>").lex()).parse())
 
         with self.assertRaises(ParserException):
-            list(Parser(Lexer("[1,2,3\n").lex()).parse())
+            list(Parser(Lexer("function nem(1\n", "<stdin>").lex()).parse())
 
         with self.assertRaises(ParserException):
-            list(Parser(Lexer("a[1\n").lex()).parse())
+            list(Parser(Lexer("[1,2,3\n", "<stdin>").lex()).parse())
+
+        with self.assertRaises(ParserException):
+            list(Parser(Lexer("a[1\n", "<stdin>").lex()).parse())
+
+        with self.assertRaises(ParserException):
+            list(Parser(Lexer("import\n", "<stdin>").lex()).parse())
 
 
 if __name__ == '__main__':
