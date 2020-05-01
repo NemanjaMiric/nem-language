@@ -536,6 +536,7 @@ def main():
     Used as the entry-point when the file gets ran directly. Used for debugging the class Evaluator.
 
     """
+    # Built-in variables and functions
     symbol_table = SymbolTable()
     symbol_table.set("true", value.Number(1))
     symbol_table.set("false", value.Number(0))

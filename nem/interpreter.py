@@ -8,7 +8,6 @@ Holds class Interpreter.
 import nem.lexer
 import nem.parser
 import nem.evaluator
-from nem.symbol_table import SymbolTable
 import nem.types_ as value
 
 
@@ -145,6 +144,7 @@ def main():
     Used as the entry-point when the file gets ran directly. It's usually used for debugging the class Interpreter.
 
     """
+    # Built-in variables and functions
     symbol_table = SymbolTable()
     symbol_table.set("true", value.Number(1))
     symbol_table.set("false", value.Number(0))
@@ -159,4 +159,6 @@ def main():
 
 if __name__ == "__main__":
     # Only activates when the file gets ran directly.
+    from nem.symbol_table import SymbolTable
+
     main()

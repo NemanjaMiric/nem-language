@@ -1,7 +1,13 @@
 # Fibonacci numbers generator
 
+function println(element) (
+    print(element)
+    print("\n")
+)
+
 function fib(first, second, stop) (
     while (first < stop) (
+        println(first)
         temporary = first
         first = second
         second = temporary + second
@@ -10,7 +16,7 @@ function fib(first, second, stop) (
     return 0
 )
 
-fib(1, 1, 1000)
+fib(1, 1, 10000000)
 
 # Higher-order function combined with function list indexing
 
@@ -21,4 +27,4 @@ function hof() (
     return inner_func
 )
 
-hof()()[0][1]
+println(hof()()[0][1])

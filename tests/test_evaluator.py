@@ -72,7 +72,7 @@ class ParserTestCase(unittest.TestCase):
                            symbol_table).evaluate())
 
         with self.assertRaises(EvaluatorException):
-            list(Evaluator(Parser(Lexer("if (return 1) (print(1))\n", "<stdin>").lex()).parse(), symbol_table).evaluate())
+            list(Evaluator(Parser(Lexer("if (return 1) (print(1))\n", "test").lex()).parse(), symbol_table).evaluate())
 
         with self.assertRaises(EvaluatorException):
             list(Evaluator(Parser(Lexer("return 2\n", "<stdin>").lex()).parse(), symbol_table).evaluate())
