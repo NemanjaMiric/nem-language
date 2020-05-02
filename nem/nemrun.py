@@ -41,7 +41,7 @@ def script():
     if len(sys.argv) == 0 or sys.argv[0] in ("-h", "--help"):
         print(HELP)
     elif len(sys.argv) > 0 and sys.argv[0] in ("-v", "--version"):
-        print("Nem 1.0.0 [<insert commit>] 5/1/2020")
+        print("Nem 1.0.0 5/1/2020")
     elif len(sys.argv) > 0 and sys.argv[0] in ("-l", "--license"):
         print(LICENSE)
     else:
