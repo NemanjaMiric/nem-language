@@ -1,13 +1,4 @@
 # Nem Language Guide (v1.0.0)
-
-Official Nem Language guide for version 1.0.0.
-
-## Table of contents
-- Nem Language Guide (v1.0.0)
-  - [Encoding](#encoding)
-  - [Comments](#comments)
-  - [Variables](#variables) # Nem Language Guide (v1.0.0)
-
 Official Nem Language guide for version 1.0.0.
 
 ## Table of contents
