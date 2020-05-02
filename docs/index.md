@@ -630,7 +630,7 @@ numbers()[1] # => 2
 
 ## Importing
 Importing is done via the `import` keyword. When called, the file specified gets ran through the interpreter.
-The string after `import` holds the path to the file, so `import "../file.nem" is possible.
+The string after `import` holds the path to the file, so `import "../file.nem"` is possible.
 
 **math.nem**
 ```
