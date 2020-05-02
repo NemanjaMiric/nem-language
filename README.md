@@ -2,7 +2,6 @@
 
 ![Logo](resources/logo.png)
 
-[![Version](https://badge.fury.io/gh/nemanjamiric%2Fnem-language.svg)](https://badge.fury.io/gh/nemanjamiric%2Fnem-language)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/nemanjamiric/nem-language/blob/master/LICENSE)
 
 ## Description
